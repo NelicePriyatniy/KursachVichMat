@@ -1,0 +1,78 @@
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include <fstream>
+double sum(double x, double y)
+{
+	return x + y;
+}
+void Kutta(std::vector <double>& X, std::vector <double>& Y)
+{
+	double a, b;
+	double h;
+	std::vector <double> y1, y2, y3, y4; // массивы для вычисления по алгоритму(в 4 стадиях)
+	std::cout << "Введите: " << std::endl;
+	std::cout << "\nотрезок [a b] "  << std::endl;
+	std::cin >> a >> b;
+	std::cout << "\nшаг h " << std::endl;
+	std::cin >> h;
+	double n = (b - a) / h;
+	X.push_back(a); //x0 = 0, y(x0) = 1
+	Y.push_back(1);
+	y1.push_back(0);
+	y2.push_back(0);
+	y3.push_back(0);
+	y4.push_back(0);
+	for (int i = 1; i <= n; i++) // алгоритм Рунге-Кутта
+	{
+		X.push_back(a + i * h);
+		y1.push_back(h * sum(X[i - 1], Y[i - 1]));
+		y2.push_back(h * sum(X[i - 1] + h / 2.0, Y[i - 1] + y1[i] / 2.0));
+		y3.push_back(h * sum(X[i - 1] + h / 2, Y[i - 1] + y2[i] / 2));
+		y4.push_back(h * sum(X[i - 1] + h, Y[i - 1] + y3[i]));
+		Y.push_back(Y[i - 1] + (y1[i] + 2 * y2[i] + 2 * y3[i] + y4[i]) / 6);
+	}
+
+	std::cout << std::endl;
+	std::cout << "x = " << X[n] << std::endl;
+	std::cout << "y = " << Y[n] << std::endl;
+}
+void InFile (std::vector <double>& x, std::vector <double>& y)
+{
+	std::ofstream out("file.txt");
+	std::vector <double>::iterator thisx = x.begin();
+	std::vector <double>::iterator thisy = y.begin();
+	if (out.is_open())
+	{
+		for (int i = 0; i < x.size(); i++)
+		{
+			out << *thisx << " " << *thisy << std::endl;
+			thisx++; thisy++;
+		}
+		std::cout << "Файл заполнен" <<
+			std::endl;
+	}
+	else
+	{
+		std::cout << "Ошибка заполненя файла!" << std::endl;
+		return;
+	}
+	out.close();
+}
+int main()
+{
+	setlocale(LC_ALL, "Russian");
+	std::vector <double> x; // массивы x и y, в которые и будут записываться значения вычислений на каждом промежутке
+	std::vector <double> y;
+	int option;
+	while (1)
+	{
+			x.clear(); x.shrink_to_fit();
+			y.clear(); y.shrink_to_fit();
+			Kutta(x, y);
+			InFile(x, y);
+			break;
+			return 0;
+		
+	}
+}
